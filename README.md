@@ -38,9 +38,25 @@ A Discord bot for [Torn City](https://www.torn.com) powered by Claude AI. Talk t
 ### Installation
 
 ```bash
-git clone https://github.com/youruser/clorn.git
+git clone https://github.com/itIsMaku/clorn.git
 cd clorn
 bun install
+```
+
+### Docker (recommended)
+
+```bash
+git clone https://github.com/itIsMaku/clorn.git
+cd clorn
+./setup.sh
+```
+
+The setup script will prompt for your tokens, auto-generate encryption keys, and start everything with Docker Compose (bot + PostgreSQL).
+
+```bash
+docker compose logs -f bot    # view logs
+docker compose down            # stop
+docker compose up -d           # start again
 ```
 
 ### Configuration

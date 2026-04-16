@@ -1,0 +1,1 @@
+ALTER TABLE "monitors" ADD COLUMN "target_value" integer;

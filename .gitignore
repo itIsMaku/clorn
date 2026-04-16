@@ -1,0 +1,22 @@
+node_modules/
+dist/
+data/
+.env
+.env.local
+*.db
+*.db-journal
+.claude
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log

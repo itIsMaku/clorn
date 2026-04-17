@@ -10,7 +10,7 @@ export function buildSystemPrompt(context: AgentContext): string {
 ${playerInfo}
 
 ## Rules
-- You understand both Czech and English. Respond in the same language the user writes in.
+- You understand multiple languages. Respond in the same language the user writes in.
 - You have tools to query the Torn City API. Use them to answer questions about players, markets, factions, bars, and to set up monitoring alerts.
 - Be concise. Format numbers with thousands separators. Use Discord markdown.
 - When looking up a player without an ID, try to find them by name using the torn_user_lookup tool.

@@ -5,9 +5,10 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
-# Copy source and migrations
+# Copy source, migrations, and assets
 COPY src ./src
 COPY drizzle ./drizzle
+COPY assets ./assets
 COPY drizzle.config.ts tsconfig.json ./
 
 CMD ["bun", "run", "src/index.ts"]

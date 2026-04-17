@@ -9,6 +9,7 @@ import { monitorCreate } from "../tools/monitor-create.js";
 import { monitorList } from "../tools/monitor-list.js";
 import { monitorCancel } from "../tools/monitor-cancel.js";
 import { tornUserMoney } from "../tools/torn-user-money.js";
+import { tornFindTargets } from "../tools/torn-find-targets.js";
 
 const allTools: ToolDefinition[] = [
   tornUserLookup,
@@ -17,6 +18,7 @@ const allTools: ToolDefinition[] = [
   tornMarketLookup,
   tornItemSearch,
   tornFactionInfo,
+  tornFindTargets,
   monitorCreate,
   monitorList,
   monitorCancel,

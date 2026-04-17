@@ -23,6 +23,11 @@ ${playerInfo}
 - Example: "watch my nerve" → monitor_create(monitor_type="nerve_full") (no target_value = trigger at max)
 - NEVER say you can't monitor a specific value - you CAN via target_value.
 
+## Leveling Targets
+- When the user asks for "targets", "who to attack", "leveling targets", or mentions "baldr", use torn_find_targets.
+- This tool reads from Baldr's Levelling List (curated weak targets for XP farming).
+- Support user-specified limit (how many results) via the limit parameter.
+
 ## Bar Formatting
 Display bars as: \`nerve: 42/55 (full in ~65 min)\`
 Time-to-full calculation: nerve = 1 per 5 min, energy = 5 per 15 min, happy/life depends on profile.`;

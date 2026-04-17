@@ -56,6 +56,24 @@ const commands = [
         .setDescription("Item name or ID")
         .setRequired(true)
     ),
+  new SlashCommandBuilder()
+    .setName("targets")
+    .setDescription("Find leveling targets from Baldr's List")
+    .addIntegerOption((opt) =>
+      opt
+        .setName("max_level")
+        .setDescription("Maximum target level")
+    )
+    .addIntegerOption((opt) =>
+      opt
+        .setName("max_total")
+        .setDescription("Maximum total battle stats")
+    )
+    .addIntegerOption((opt) =>
+      opt
+        .setName("limit")
+        .setDescription("How many targets to show (default 10, max 50)")
+    ),
 ];
 
 export async function registerCommands(): Promise<void> {
@@ -125,6 +143,17 @@ export async function handleInteraction(
       case "market": {
         const item = interaction.options.getString("item", true);
         query = `What are the market prices for ${item}?`;
+        break;
+      }
+      case "targets": {
+        const maxLevel = interaction.options.getInteger("max_level");
+        const maxTotal = interaction.options.getInteger("max_total");
+        const limit = interaction.options.getInteger("limit");
+        const parts: string[] = ["Find leveling targets from Baldr's list"];
+        if (maxLevel !== null) parts.push(`max level ${maxLevel}`);
+        if (maxTotal !== null) parts.push(`max total ${maxTotal}`);
+        if (limit !== null) parts.push(`show ${limit} results`);
+        query = parts.join(", ");
         break;
       }
       default:

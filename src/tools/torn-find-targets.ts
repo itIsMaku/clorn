@@ -5,7 +5,8 @@ import { enrichTargets, type EnrichedTarget } from "../baldrs/enrich.js";
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
-const DEFAULT_ENRICH_LIMIT = 5;
+const OVERFETCH_MULTIPLIER = 3; // fetch this many times `limit` to survive hospital filtering
+const MAX_OVERFETCH = 100;
 
 function formatTarget(t: EnrichedTarget, index: number): string {
   const statusLine = t.fetchFailed
@@ -25,10 +26,18 @@ function formatTarget(t: EnrichedTarget, index: number): string {
   );
 }
 
+function isAttackable(t: EnrichedTarget): boolean {
+  // If fetch failed, be conservative and include them
+  if (t.fetchFailed) return true;
+  // No status info means checkStatus was false; include them
+  if (!t.statusState) return true;
+  return t.statusState === "Okay";
+}
+
 export const tornFindTargets: ToolDefinition = {
   name: "torn_find_targets",
   description:
-    "Find leveling targets from Baldr's Levelling List (curated weak/inactive players for XP farming). Filter by level, total battle stats, or specific list. Returns target profile + optionally live status from Torn API. Available lists: " +
+    "Find leveling targets from Baldr's Levelling List (curated weak/inactive players for XP farming). Filter by level, total battle stats, or specific list. By default, only returns targets that are Okay (not in hospital or traveling). Available lists: " +
     getListNames().join(", "),
   input_schema: {
     type: "object" as const,
@@ -64,9 +73,15 @@ export const tornFindTargets: ToolDefinition = {
         enum: ["total", "level"],
         description: "Sort by total stats (default) or level",
       },
+      include_hospital: {
+        type: "boolean",
+        description:
+          "Include targets currently in hospital or traveling. Default: false (only Okay targets are returned).",
+      },
       check_status: {
         type: "boolean",
-        description: `Fetch live status from Torn API (Okay/Hospital/Traveling) for the top ${DEFAULT_ENRICH_LIMIT} results. Default: true.`,
+        description:
+          "Fetch live status from Torn API. Default: true. Set to false to skip API calls and return raw list entries without filtering by status.",
       },
     },
     required: [],
@@ -78,6 +93,7 @@ export const tornFindTargets: ToolDefinition = {
       Math.max(1, (input.limit as number) ?? DEFAULT_LIMIT)
     );
     const checkStatus = (input.check_status as boolean) ?? true;
+    const includeHospital = (input.include_hospital as boolean) ?? false;
 
     const filtered = filterTargets(all, {
       maxLevel: input.max_level as number | undefined,
@@ -92,23 +108,38 @@ export const tornFindTargets: ToolDefinition = {
       return "No targets match those criteria.";
     }
 
-    const top = filtered.slice(0, limit);
-    const toEnrich = checkStatus
-      ? top.slice(0, Math.min(DEFAULT_ENRICH_LIMIT, top.length))
-      : [];
-    const rest = top.slice(toEnrich.length);
+    let results: EnrichedTarget[];
 
-    const enriched = checkStatus
-      ? await enrichTargets(toEnrich, context.tornApiKey)
-      : [];
+    if (!checkStatus) {
+      results = filtered.slice(0, limit) as EnrichedTarget[];
+    } else {
+      // Over-fetch so we can filter out hospital/travel and still hit `limit`
+      const fetchCount = Math.min(
+        MAX_OVERFETCH,
+        filtered.length,
+        includeHospital ? limit : limit * OVERFETCH_MULTIPLIER
+      );
+      const candidates = filtered.slice(0, fetchCount);
+      const enriched = await enrichTargets(candidates, context.tornApiKey);
+
+      results = includeHospital
+        ? enriched.slice(0, limit)
+        : enriched.filter(isAttackable).slice(0, limit);
+    }
+
+    if (results.length === 0) {
+      return `All top targets are currently in hospital or traveling. Try increasing the filter range or pass include_hospital=true.`;
+    }
+
+    const hospitalNote =
+      checkStatus && !includeHospital
+        ? " (hospital/traveling targets hidden; pass include_hospital to see them)"
+        : "";
 
     const lines = [
-      `Found ${filtered.length.toLocaleString()} target(s). Showing top ${top.length}:`,
+      `Found ${filtered.length.toLocaleString()} target(s). Showing ${results.length}${hospitalNote}:`,
       "",
-      ...enriched.map((t, i) => formatTarget(t, i)),
-      ...rest.map((t, i) =>
-        formatTarget(t as EnrichedTarget, enriched.length + i)
-      ),
+      ...results.map((t, i) => formatTarget(t, i)),
     ];
 
     return lines.join("\n");

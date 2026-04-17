@@ -7,7 +7,7 @@ import { MONITOR_TYPES, type MonitorType } from "../monitor/types.js";
 export const monitorCreate: ToolDefinition = {
   name: "monitor_create",
   description:
-    "Create a monitoring alert. The bot will periodically check the specified bar/stat and send a Discord notification when the condition is met. Available types: nerve_full, energy_full, happy_full, life_full, travel_landed, cooldown_done. Options: target_value to trigger at a specific value instead of max; recurring=true for repeated notifications (default is one-shot).",
+    "Create a monitoring alert. The bot will periodically check the specified bar/stat and send a Discord notification when the condition is met. Available types: nerve_full, energy_full, happy_full, life_full, travel_landed, drug_cooldown (drug only), medical_cooldown (medical only), booster_cooldown (booster only), cooldown_done (all three cooldowns together). Options: target_value to trigger at a specific value instead of max; recurring=true for repeated notifications (default is one-shot).",
   input_schema: {
     type: "object" as const,
     properties: {

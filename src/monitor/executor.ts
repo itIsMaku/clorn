@@ -89,6 +89,18 @@ export async function executeMonitorChecks(): Promise<void> {
           conditionMet = !data.travel || data.travel.time_left <= 0;
           notificationMessage = "You have landed!";
           break;
+        case "drug_cooldown":
+          conditionMet = !!data.cooldowns && data.cooldowns.drug === 0;
+          notificationMessage = "Your drug cooldown is done!";
+          break;
+        case "medical_cooldown":
+          conditionMet = !!data.cooldowns && data.cooldowns.medical === 0;
+          notificationMessage = "Your medical cooldown is done!";
+          break;
+        case "booster_cooldown":
+          conditionMet = !!data.cooldowns && data.cooldowns.booster === 0;
+          notificationMessage = "Your booster cooldown is done!";
+          break;
         case "cooldown_done":
           conditionMet =
             !!data.cooldowns &&
